@@ -1,0 +1,216 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  padding-bottom: 120rpx;
+}
+
+.header {
+  padding: $spacing-lg;
+  
+  .title {
+    font-size: $font-size-xxl;
+    font-weight: $font-weight-bold;
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: $spacing-sm;
+  }
+  
+  .subtitle {
+    font-size: $font-size-sm;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+  }
+}
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  margin: $spacing-md $page-padding;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.cardTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  
+  .icon {
+    margin-right: $spacing-sm;
+    font-size: $font-size-xl;
+  }
+}
+
+.formItem {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: $spacing-md;
+  
+  .label {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    margin-bottom: $spacing-xs;
+  }
+  
+  .input {
+    padding: $spacing-sm $spacing-md;
+    border: 1rpx solid $color-border;
+    border-radius: $radius-md;
+    font-size: $font-size-md;
+    color: $color-text-primary;
+    background: $color-bg-page;
+    
+    &:focus {
+      border-color: $color-primary;
+      background: $color-bg-card;
+    }
+  }
+  
+  .inputRow {
+    display: flex;
+    gap: $spacing-sm;
+    
+    .input {
+      flex: 1;
+    }
+  }
+}
+
+.cargoList {
+  max-height: 400rpx;
+  overflow-y: auto;
+}
+
+.cargoItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-divider;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  .info {
+    flex: 1;
+    
+    .name {
+      font-size: $font-size-md;
+      font-weight: $font-weight-medium;
+      color: $color-text-primary;
+      margin-bottom: $spacing-xs;
+    }
+    
+    .detail {
+      font-size: $font-size-sm;
+      color: $color-text-tertiary;
+    }
+  }
+  
+  .deleteBtn {
+    padding: $spacing-xs $spacing-sm;
+    font-size: $font-size-sm;
+    color: $color-error;
+    background: rgba(245, 63, 63, 0.1);
+    border-radius: $radius-sm;
+  }
+}
+
+.truckConfig {
+  .configRow {
+    display: flex;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-md;
+    
+    .configItem {
+      flex: 1;
+      
+      .label {
+        font-size: $font-size-sm;
+        color: $color-text-secondary;
+        margin-bottom: $spacing-xs;
+        display: block;
+      }
+      
+      .input {
+        width: 100%;
+        padding: $spacing-sm $spacing-md;
+        border: 1rpx solid $color-border;
+        border-radius: $radius-md;
+        font-size: $font-size-md;
+        color: $color-text-primary;
+        background: $color-bg-page;
+      }
+    }
+  }
+}
+
+.btn {
+  @include button-reset;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+  
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.btnPrimary {
+  composes: btn;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+  margin: $spacing-lg $page-padding;
+  width: calc(100% - #{$page-padding} * 2);
+}
+
+.btnSecondary {
+  composes: btn;
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+  margin: 0 $page-padding $spacing-md;
+  width: calc(100% - #{$page-padding} * 2);
+}
+
+.btnDisabled {
+  opacity: 0.5;
+  
+  &:active {
+    transform: none;
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: $spacing-xl * 2;
+  color: $color-text-tertiary;
+  
+  .icon {
+    font-size: 80rpx;
+    margin-bottom: $spacing-md;
+  }
+  
+  .text {
+    font-size: $font-size-md;
+  }
+}
+
+.clearBtn {
+  float: right;
+  font-size: $font-size-sm;
+  color: $color-error;
+  padding: $spacing-xs $spacing-sm;
+  
+  &:active {
+    opacity: 0.7;
+  }
+}

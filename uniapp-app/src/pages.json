@@ -1,0 +1,67 @@
+{
+  "pages": [
+    {
+      "path": "pages/home/index",
+      "style": {
+        "navigationBarTitleText": "智能装车",
+        "navigationBarBackgroundColor": "#1a1a2e",
+        "navigationBarTextStyle": "white",
+        "backgroundColor": "#f5f6f7"
+      }
+    },
+    {
+      "path": "pages/result/index",
+      "style": {
+        "navigationBarTitleText": "装车结果",
+        "navigationBarBackgroundColor": "#1a1a2e",
+        "navigationBarTextStyle": "white",
+        "backgroundColor": "#f5f6f7"
+      }
+    },
+    {
+      "path": "pages/visualization/index",
+      "style": {
+        "navigationBarTitleText": "装车可视化",
+        "navigationBarBackgroundColor": "#1a1a2e",
+        "navigationBarTextStyle": "white",
+        "backgroundColor": "#f5f6f7"
+      }
+    },
+    {
+      "path": "pages/mine/index",
+      "style": {
+        "navigationBarTitleText": "我的",
+        "navigationBarBackgroundColor": "#1a1a2e",
+        "navigationBarTextStyle": "white",
+        "backgroundColor": "#f5f6f7"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "智能装车系统",
+    "navigationBarBackgroundColor": "#1a1a2e",
+    "backgroundColor": "#f5f6f7",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#86909c",
+    "selectedColor": "#165dff",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "装车"
+      },
+      {
+        "pagePath": "pages/result/index",
+        "text": "结果"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的"
+      }
+    ]
+  }
+}

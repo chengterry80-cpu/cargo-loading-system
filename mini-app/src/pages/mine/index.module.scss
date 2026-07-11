@@ -1,0 +1,182 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  padding-bottom: 120rpx;
+}
+
+.header {
+  padding: $spacing-lg;
+  text-align: center;
+  
+  .title {
+    font-size: $font-size-xxl;
+    font-weight: $font-weight-bold;
+    color: #ffffff;
+    margin-bottom: $spacing-sm;
+  }
+  
+  .subtitle {
+    font-size: $font-size-sm;
+    color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  margin: $spacing-md $page-padding;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.cardTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  
+  .icon {
+    margin-right: $spacing-sm;
+    font-size: $font-size-xl;
+  }
+}
+
+.historyList {
+  max-height: 500rpx;
+  overflow-y: auto;
+}
+
+.historyItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  .info {
+    flex: 1;
+    
+    .time {
+      font-size: $font-size-md;
+      font-weight: $font-weight-medium;
+      color: $color-text-primary;
+      margin-bottom: $spacing-xs;
+    }
+    
+    .detail {
+      font-size: $font-size-sm;
+      color: $color-text-tertiary;
+    }
+  }
+  
+  .deleteBtn {
+    padding: $spacing-xs $spacing-sm;
+    font-size: $font-size-sm;
+    color: $color-error;
+    background: rgba(245, 63, 63, 0.1);
+    border-radius: $radius-sm;
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: $spacing-xl * 2;
+  color: $color-text-tertiary;
+  
+  .icon {
+    font-size: 80rpx;
+    margin-bottom: $spacing-md;
+  }
+  
+  .text {
+    font-size: $font-size-md;
+  }
+}
+
+.section {
+  margin-top: $spacing-lg;
+  
+  .sectionTitle {
+    font-size: $font-size-md;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    margin-bottom: $spacing-md;
+  }
+  
+  .infoItem {
+    display: flex;
+    justify-content: space-between;
+    padding: $spacing-md 0;
+    border-bottom: 1rpx solid $color-divider;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .label {
+      font-size: $font-size-md;
+      color: $color-text-secondary;
+    }
+    
+    .value {
+      font-size: $font-size-md;
+      color: $color-text-primary;
+      font-weight: $font-weight-medium;
+    }
+  }
+}
+
+.btn {
+  @include button-reset;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  transition: all $transition-base;
+  
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.btnPrimary {
+  composes: btn;
+  background: $color-primary;
+  color: $color-text-white;
+  margin-top: $spacing-lg;
+  width: 100%;
+}
+
+.btnSecondary {
+  composes: btn;
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+  margin-top: $spacing-sm;
+  width: 100%;
+}
+
+.about {
+  margin-top: $spacing-lg;
+  
+  .aboutTitle {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    margin-bottom: $spacing-md;
+  }
+  
+  .aboutContent {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    line-height: $line-height-loose;
+    white-space: pre-line;
+  }
+}

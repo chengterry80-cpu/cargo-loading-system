@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能货物装车算法可视化系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #333;
+            height: 100vh;
+        }
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            color: white;
+            font-size: 24px;
+        }
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-header {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-header:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .main-content {
+            display: flex;
+            height: calc(100vh - 70px);
+            padding: 16px;
+            gap: 16px;
+        }
+        .left-panel {
+            width: 400px;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card h3 {
+            margin-bottom: 16px;
+            color: #1a1a2e;
+            border-bottom: 2px solid #409eff;
+            padding-bottom: 8px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #606266;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #409eff;
+            color: white;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        .btn-success {
+            background: #67c23a;
+            color: white;
+            width: 100%;
+        }
+        .btn-danger {
+            background: #f56c6c;
+            color: white;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .table th, .table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ebeef5;
+        }
+        .table th {
+            background: #f5f7fa;
+            color: #606266;
+            font-weight: 600;
+        }
+        .viewer-container {
+            flex: 1;
+            background: #f0f2f5;
+            border-radius: 8px;
+            overflow: hidden;
+            min-height: 400px;
+        }
+        #three-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .stat-item {
+            background: #f5f7fa;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #409eff;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #909399;
+        }
+        .progress-bar {
+            height: 24px;
+            background: #f0f2f5;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #67c23a, #409eff);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .unplaced-items {
+            margin-top: 16px;
+        }
+        .unplaced-tag {
+            display: inline-block;
+            background: #fef0f0;
+            color: #f56c6c;
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin: 4px;
+            font-size: 12px;
+        }
+        .empty-state {
+            color: #909399;
+            text-align: center;
+            padding: 40px;
+        }
+        .truck-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .truck-tab {
+            padding: 8px 16px;
+            background: #f0f2f5;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .truck-tab:hover {
+            background: #ecf5ff;
+            border-color: #409eff;
+        }
+        .truck-tab.active {
+            background: #409eff;
+            color: white;
+            border-color: #409eff;
+        }
+        .summary-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        .summary-panel h4 {
+            margin-bottom: 12px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #ebeef5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h3 {
+            margin: 0;
+            border: none;
+            padding: 0;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #909399;
+        }
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .history-item {
+            padding: 12px;
+            border: 1px solid #ebeef5;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+        .history-item:hover {
+            background: #f5f7fa;
+        }
+        .history-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .history-info {
+            font-size: 13px;
+            color: #909399;
+            margin-bottom: 12px;
+        }
+        .history-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .history-actions .btn {
+            width: auto;
+            padding: 6px 12px;
+            font-size: 13px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚚 智能货物装车算法可视化系统</h1>
+        <div class="header-buttons">
+            <button class="btn-header" onclick="showHistoryModal()">📋 历史记录</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="left-panel">
+            <div class="card">
+                <h3>添加货物</h3>
+                <div class="form-group">
+                    <label>货物名称</label>
+                    <input type="text" id="cargoName" placeholder="请输入货物名称">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>长度 (cm)</label>
+                        <input type="number" id="cargoLength" value="100">
+                    </div>
+                    <div class="form-group">
+                        <label>宽度 (cm)</label>
+                        <input type="number" id="cargoWidth" value="50">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>高度 (cm)</label>
+                        <input type="number" id="cargoHeight" value="80">
+                    </div>
+                    <div class="form-group">
+                        <label>重量 (kg)</label>
+                        <input type="number" id="cargoWeight" value="50">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>数量</label>
+                    <input type="number" id="cargoQuantity" value="5">
+                </div>
+                <button class="btn btn-primary" onclick="addCargo()">添加货物</button>
+            </div>
+
+            <div class="card">
+                <h3>货物清单 (<span id="cargoCount">0</span>)</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>名称</th>
+                            <th>尺寸</th>
+                            <th>重量</th>
+                            <th>数量</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cargoTable"></tbody>
+                </table>
+                <button class="btn btn-danger" style="width:100%; margin-top:10px;" onclick="clearAll()">清空</button>
+            </div>
+
+            <div class="card">
+                <h3>车厢参数</h3>
+                <div class="form-group">
+                    <label>车辆数量</label>
+                    <input type="number" id="truckCount" value="3" min="1" max="10">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>长度 (cm)</label>
+                        <input type="number" id="truckLength" value="1200">
+                    </div>
+                    <div class="form-group">
+                        <label>宽度 (cm)</label>
+                        <input type="number" id="truckWidth" value="240">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>高度 (cm)</label>
+                        <input type="number" id="truckHeight" value="260">
+                    </div>
+                    <div class="form-group">
+                        <label>最大载重 (kg)</label>
+                        <input type="number" id="truckMaxWeight" value="20000">
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="calculateLoading()">开始装车</button>
+            <button class="btn btn-success" onclick="loadSampleData()">加载示例数据</button>
+        </div>
+
+        <div class="right-panel">
+            <div class="viewer-container">
+                <canvas id="three-canvas"></canvas>
+            </div>
+            <div class="card">
+                <h3>装车结果</h3>
+                <div id="resultContainer">
+                    <div class="empty-state">点击"开始装车"查看结果</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="historyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📋 历史记录</h3>
+                <button class="modal-close" onclick="hideHistoryModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="historyList">
+                <div class="empty-state">暂无历史记录</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script>
+        let cargoList = [];
+        let cargoIdCounter = 1;
+        let scene, camera, renderer, controls;
+        let cargoMeshes = [];
+        let currentResult = null;
+        let currentHistory = null;
+        let currentTruckIndex = 0;
+
+        const colors = [
+            0xff6b6b, 0x4ecdc4, 0x45b7d1, 0x96ceb4, 0xffeaa7,
+            0xffa07a, 0xdda0dd, 0x98d8c8, 0xf7dc6f, 0xbb8fce,
+            0x85c1e9, 0x7dcea0, 0xf8c471, 0xbb8fce, 0xf1948a
+        ];
+
+        function initThree() {
+            const container = document.getElementById('three-canvas');
+            const rect = container.parentElement.getBoundingClientRect();
+            container.width = rect.width;
+            container.height = rect.height;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf0f2f5);
+
+            camera = new THREE.PerspectiveCamera(60, rect.width / rect.height, 0.1, 10000);
+            // 默认相机位置，稍后会调整
+            camera.position.set(1500, 800, 1500);
+
+            renderer = new THREE.WebGLRenderer({ canvas: container, antialias: true });
+            renderer.setSize(rect.width, rect.height);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(500, 1000, 500);
+            scene.add(directionalLight);
+
+            window.addEventListener('resize', () => {
+                const newRect = container.parentElement.getBoundingClientRect();
+                camera.aspect = newRect.width / newRect.height;
+                camera.updateProjectionMatrix();
+                renderer.setSize(newRect.width, newRect.height);
+            });
+
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        let isUpdating = false;
+        
+        function updateVisualization(truck, placedItems) {
+            if (isUpdating) return;
+            isUpdating = true;
+            
+            try {
+                // 1. 完全清空场景，只保留光源
+                const toRemove = [];
+                scene.children.forEach(child => {
+                    if (child.type !== 'AmbientLight' && child.type !== 'DirectionalLight') {
+                        toRemove.push(child);
+                    }
+                });
+                toRemove.forEach(child => scene.remove(child));
+                cargoMeshes = [];
+
+                // 2. 绘制车厢
+                const truckGeometry = new THREE.BoxGeometry(truck.length, truck.height, truck.width);
+                const edges = new THREE.EdgesGeometry(truckGeometry);
+                const lineMaterial = new THREE.LineBasicMaterial({ color: 0x2c3e50 });
+                const truckLine = new THREE.LineSegments(edges, lineMaterial);
+                truckLine.position.set(truck.length / 2, truck.height / 2, truck.width / 2);
+                scene.add(truckLine);
+
+                // 3. 绘制货物
+                placedItems.forEach((item, index) => {
+                    const cargoGeometry = new THREE.BoxGeometry(item.length, item.height, item.width);
+                    const color = colors[index % colors.length];
+                    const material = new THREE.MeshPhongMaterial({
+                        color: color,
+                        transparent: true,
+                        opacity: 0.85,
+                        shininess: 60
+                    });
+                    const mesh = new THREE.Mesh(cargoGeometry, material);
+                    mesh.position.set(
+                        item.x + item.length / 2,
+                        item.y + item.height / 2,
+                        item.z + item.width / 2
+                    );
+
+                    const edgeGeometry = new THREE.EdgesGeometry(cargoGeometry);
+                    const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x34495e });
+                    const edge = new THREE.LineSegments(edgeGeometry, edgeMaterial);
+                    mesh.add(edge);
+
+                    scene.add(mesh);
+                    cargoMeshes.push(mesh);
+                });
+
+                // 4. 更新相机和控制器目标点（车辆中心）
+            const centerX = truck.length / 2;
+            const centerY = truck.height / 2;
+            const centerZ = truck.width / 2;
+            
+            // 设置控制器目标点为车辆中心
+            controls.target.set(centerX, centerY, centerZ);
+            
+            // 优化相机位置，从更好的角度观察
+            const distance = Math.max(truck.length, truck.width) * 1.5;
+            const height = truck.height * 1.2;
+            camera.position.set(centerX + distance, centerY + height, centerZ + distance);
+            
+            camera.lookAt(centerX, centerY, centerZ);
+            camera.updateProjectionMatrix();
+            controls.update();
+            
+            // 5. 强制渲染一次
+            renderer.render(scene, camera);
+            } finally {
+                isUpdating = false;
+            }
+        }
+
+        function addCargo() {
+            const name = document.getElementById('cargoName').value;
+            if (!name) {
+                alert('请输入货物名称');
+                return;
+            }
+
+            const cargo = {
+                id: cargoIdCounter++,
+                name: name,
+                length: parseFloat(document.getElementById('cargoLength').value),
+                width: parseFloat(document.getElementById('cargoWidth').value),
+                height: parseFloat(document.getElementById('cargoHeight').value),
+                weight: parseFloat(document.getElementById('cargoWeight').value),
+                quantity: parseInt(document.getElementById('cargoQuantity').value)
+            };
+            cargoList.push(cargo);
+            renderCargoTable();
+
+            document.getElementById('cargoName').value = '';
+        }
+
+        function deleteCargo(id) {
+            cargoList = cargoList.filter(c => c.id !== id);
+            renderCargoTable();
+        }
+
+        function clearAll() {
+            cargoList = [];
+            currentResult = null;
+            currentHistory = null;
+            currentTruckIndex = 0;
+            renderCargoTable();
+            document.getElementById('resultContainer').innerHTML = '<div class="empty-state">点击"开始装车"查看结果</div>';
+            const truck = {
+                length: parseFloat(document.getElementById('truckLength').value),
+                width: parseFloat(document.getElementById('truckWidth').value),
+                height: parseFloat(document.getElementById('truckHeight').value),
+                maxWeight: parseFloat(document.getElementById('truckMaxWeight').value)
+            };
+            updateVisualization(truck, []);
+        }
+
+        function renderCargoTable() {
+            const tbody = document.getElementById('cargoTable');
+            document.getElementById('cargoCount').textContent = cargoList.length;
+            tbody.innerHTML = cargoList.map(cargo => `
+                <tr>
+                    <td>${cargo.name}</td>
+                    <td>${cargo.length}×${cargo.width}×${cargo.height}</td>
+                    <td>${cargo.weight}</td>
+                    <td>${cargo.quantity}</td>
+                    <td><button class="btn btn-danger" onclick="deleteCargo(${cargo.id})">删除</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function loadSampleData() {
+            cargoList = [
+                { id: cargoIdCounter++, name: '货物1', length: 180, width: 120, height: 102.5, weight: 1300, quantity: 5 },
+                { id: cargoIdCounter++, name: '货物2', length: 120.5, width: 120, height: 102.5, weight: 1300, quantity: 5 },
+                { id: cargoIdCounter++, name: '货物3', length: 177, width: 129.5, height: 164, weight: 1300, quantity: 12 },
+                { id: cargoIdCounter++, name: '货物4', length: 177, width: 129.5, height: 175, weight: 1300, quantity: 3 },
+                { id: cargoIdCounter++, name: '货物5', length: 100, width: 129.5, height: 164, weight: 1300, quantity: 4 },
+                { id: cargoIdCounter++, name: '货物6', length: 122, width: 129.5, height: 175, weight: 1300, quantity: 24 },
+                { id: cargoIdCounter++, name: '货物7', length: 187, width: 129.5, height: 243, weight: 1300, quantity: 7 }
+            ];
+            renderCargoTable();
+        }
+
+        async function calculateLoading() {
+            if (cargoList.length === 0) {
+                alert('请先添加货物');
+                return;
+            }
+
+            const truck = {
+                length: parseFloat(document.getElementById('truckLength').value),
+                width: parseFloat(document.getElementById('truckWidth').value),
+                height: parseFloat(document.getElementById('truckHeight').value),
+                maxWeight: parseFloat(document.getElementById('truckMaxWeight').value)
+            };
+            const truckCount = parseInt(document.getElementById('truckCount').value);
+
+            try {
+                const apiUrl = window.location.origin + '/api/loading/multi-truck/save';
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ truck, cargoList, truckCount })
+                });
+                currentHistory = await response.json();
+                currentResult = currentHistory.result;
+                currentTruckIndex = 0;
+                renderMultiTruckResult();
+            } catch (error) {
+                alert('计算失败，请检查后端服务是否启动');
+            }
+        }
+
+        function renderMultiTruckResult() {
+            const container = document.getElementById('resultContainer');
+            
+            let html = `
+                <div class="summary-panel">
+                    <h4>📊 总体情况</h4>
+                    <p>${currentResult.message}</p>
+                    <p>使用车辆: <strong>${currentResult.totalTrucksUsed}</strong> / ${parseInt(document.getElementById('truckCount').value)}</p>
+                    <div style="margin-top: 12px;">
+                        <button class="btn btn-success" style="width: auto; margin-right: 8px;" onclick="exportCurrentPlan()">📥 导出方案</button>
+                    </div>
+                </div>
+            `;
+
+            if (currentResult.truckResults && currentResult.truckResults.length > 0) {
+                html += '<div class="truck-tabs">';
+                currentResult.truckResults.forEach((tr, index) => {
+                    const active = index === currentTruckIndex ? 'active' : '';
+                    html += `<div class="truck-tab ${active}" onclick="switchTruck(${index})">🚛 第${tr.truckNumber}辆车 (${tr.placedItems.length}件)</div>`;
+                });
+                html += '</div>';
+                
+                const currentTruck = currentResult.truckResults[currentTruckIndex];
+                html += renderSingleTruckResult(currentTruck);
+            }
+
+            if (currentResult.unplacedItems && currentResult.unplacedItems.length > 0) {
+                html += `
+                    <div class="unplaced-items">
+                        <strong style="color: #f56c6c; margin-bottom:8px; display:block;">未装载货物:</strong>
+                        ${currentResult.unplacedItems.map(item => `<span class="unplaced-tag">${item.name} × ${item.quantity}</span>`).join('')}
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+
+            if (currentResult.truckResults && currentResult.truckResults[currentTruckIndex]) {
+                const tr = currentResult.truckResults[currentTruckIndex];
+                let truckSpec = tr.truckSpec;
+                if (!truckSpec) {
+                    truckSpec = {
+                        length: parseFloat(document.getElementById('truckLength').value),
+                        width: parseFloat(document.getElementById('truckWidth').value),
+                        height: parseFloat(document.getElementById('truckHeight').value),
+                        maxWeight: parseFloat(document.getElementById('truckMaxWeight').value)
+                    };
+                }
+                // 统一更新可视化，只显示当前选中车辆
+                updateVisualization(truckSpec, tr.placedItems || []);
+            }
+        }
+
+        function switchTruck(index) {
+            currentTruckIndex = index;
+            renderMultiTruckResult();
+        }
+
+        function renderSingleTruckResult(tr) {
+            const utilization = tr.utilizationRate.toFixed(1);
+            let progressColor = '#67c23a';
+            if (utilization < 50) progressColor = '#f56c6c';
+            else if (utilization < 70) progressColor = '#e6a23c';
+
+            return `
+                <h4 style="margin-bottom:12px;">🚛 第${tr.truckNumber}辆车详情</h4>
+                <div class="result-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">${tr.totalWeight.toFixed(1)}</div>
+                        <div class="stat-label">总重量 (kg)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${(tr.totalVolume / 1000000).toFixed(2)}</div>
+                        <div class="stat-label">总体积 (m³)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${tr.placedItems.length}</div>
+                        <div class="stat-label">装载件数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" style="color:${tr.success ? '#67c23a' : '#e6a23c'}">${tr.success ? '满载' : '部分装载'}</div>
+                        <div class="stat-label">状态</div>
+                    </div>
+                </div>
+                <div>
+                    <strong style="color: #606266;">空间利用率</strong>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${utilization}%; background: ${progressColor}">
+                            ${utilization}%
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showHistoryModal() {
+            document.getElementById('historyModal').classList.add('show');
+            loadHistoryList();
+        }
+
+        function hideHistoryModal() {
+            document.getElementById('historyModal').classList.remove('show');
+        }
+
+        async function loadHistoryList() {
+            try {
+                const response = await fetch(window.location.origin + '/api/history');
+                const historyList = await response.json();
+                const container = document.getElementById('historyList');
+                
+                if (historyList.length === 0) {
+                    container.innerHTML = '<div class="empty-state">暂无历史记录</div>';
+                    return;
+                }
+
+                container.innerHTML = historyList.map(h => {
+                    const date = new Date(h.createTime);
+                    return `
+                        <div class="history-item">
+                            <div class="history-title">方案 #${h.id} - ${date.toLocaleString()}</div>
+                            <div class="history-info">
+                                ${h.result.message}<br>
+                                使用车辆: ${h.result.totalTrucksUsed} / ${h.truckCount}
+                            </div>
+                            <div class="history-actions">
+                                <button class="btn btn-primary" onclick="loadHistory(${h.id})">加载</button>
+                                <button class="btn btn-success" onclick="exportHistory(${h.id})">导出</button>
+                                <button class="btn btn-danger" onclick="deleteHistory(${h.id})">删除</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state">加载历史记录失败</div>';
+            }
+        }
+
+        async function loadHistory(id) {
+            try {
+                const response = await fetch(window.location.origin + `/api/history/${id}`);
+                const history = await response.json();
+                
+                currentHistory = history;
+                currentResult = history.result;
+                currentTruckIndex = 0;
+                
+                document.getElementById('truckCount').value = history.truckCount;
+                document.getElementById('truckLength').value = history.truck.length;
+                document.getElementById('truckWidth').value = history.truck.width;
+                document.getElementById('truckHeight').value = history.truck.height;
+                document.getElementById('truckMaxWeight').value = history.truck.maxWeight;
+                
+                cargoList = history.cargoList.map(c => ({ ...c }));
+                cargoIdCounter = Math.max(...cargoList.map(c => c.id), 0) + 1;
+                renderCargoTable();
+                
+                renderMultiTruckResult();
+                hideHistoryModal();
+            } catch (error) {
+                alert('加载历史记录失败');
+            }
+        }
+
+        function exportCurrentPlan() {
+            if (currentHistory && currentHistory.id) {
+                exportHistory(currentHistory.id);
+            } else {
+                alert('请先保存方案');
+            }
+        }
+
+        function exportHistory(id) {
+            window.open(window.location.origin + `/api/export/${id}`, '_blank');
+        }
+
+        async function deleteHistory(id) {
+            if (!confirm('确定删除此记录吗？')) return;
+            try {
+                await fetch(window.location.origin + `/api/history/${id}`, { method: 'DELETE' });
+                loadHistoryList();
+            } catch (error) {
+                alert('删除失败');
+            }
+        }
+
+        window.onload = function() {
+            initThree();
+            const defaultTruck = {
+                length: 1200,
+                width: 240,
+                height: 260,
+                maxWeight: 20000
+            };
+            updateVisualization(defaultTruck, []);
+        };
+    </script>
+</body>
+</html>
